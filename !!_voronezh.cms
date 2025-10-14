@@ -1,0 +1,304 @@
+﻿// RECORDED SCRIPT 23.09.2025 @adjuster2004
+// Подготавливаем страницу к просмотру. Смотрите требования.
+// Запускаем clickermann и выбираем файл конфигурации
+// Запускаем старт
+// Количество страниц в данный момент указывается в программе в Режиме выполнения (шестеренка)
+
+// точка старта
+begin:
+
+$link_file = STRREADLN ("link.txt", 1)
+
+// waitms correction
+$S_CORR = 0
+
+// задаем переменные
+$white_list = 9
+$while1 = 0
+
+///////////////
+// стартуем  //
+///////////////
+
+// вызов пкм меню
+LOGWRITE("вызов пкм меню")
+waitms(327 + $S_CORR)
+  RCLICK(963,466)
+waitms(456 + $S_CORR)
+
+// жмем меню "Копировать адрес изображения"
+waitms(334 + $S_CORR)
+  LCLICK(1115,553)
+waitms(62 + $S_CORR)
+
+#include "change_link.cms"
+
+// записываем ссылку в файл из переменной
+StrWriteln("link.txt", $http, 1 )
+
+LOGWRITE("переходим на новую картинку")
+// жмем кнопку перейти на следующую картинку
+waitms(250 + $S_CORR)
+  lclick(1836,549)
+waitms(2050 + $S_CORR)
+
+pkm:
+// вызов пкм меню
+waitms(327 + $S_CORR)
+  RCLICK(963,466)
+waitms(456 + $S_CORR)
+GETSCREEN
+// проверяем, имеется ли меню "Открыть в другом окне"
+LOGWRITE("запускаем цикл проверки подменю")
+IF_PICTURE_IN (968,609,1357,650, "open_picture.bmp")
+	// жмем меню "Копировать адрес изображения"
+	LOGWRITE("жмем меню Копировать адрес изображения")
+	waitms(334 + $S_CORR)
+	  LCLICK(1115,553)
+	waitms(62 + $S_CORR)
+	
+	#include "change_link.cms"
+	
+	//из буфера ссылка помещается в переменную
+	$link_bufer = $http
+	LOGWRITE("Поместили в буфер2  ", $link_bufer)
+	
+ELSE
+	waitms(56 + $S_CORR)
+	keypress(27)
+	LOGWRITE("что сейчас в файле2   ", $link_file)
+	LOGWRITE("что сейчас в буфере2  ", $link_bufer)
+	goto ($pkm)
+END_IF
+
+point2:
+LOGWRITE ("заходим в цикл сравнения ссылок")
+// сравниваем подготовленный текст из буфера с текстом из файла
+// значения yes нужны для входа в цикл
+WHILE ( $link_file = $link_bufer ) or( $while1 < 20)
+
+	waitms(556 + $S_CORR)
+	// вызов пкм меню
+	waitms(327 + $S_CORR)
+	  RCLICK(963,466)
+	waitms(456 + $S_CORR)
+	
+	GETSCREEN
+	// проверяем, имеется ли меню "Открыть в другом окне"
+	IF_PICTURE_IN (968,609,1357,650, "open_picture.bmp")
+		$while1 = $while1 + 1
+				
+		// жмем меню "Копировать адрес изображения"
+		waitms(334 + $S_CORR)
+		  LCLICK(1115,553)
+		waitms(62 + $S_CORR)
+		
+		// вызываем подготовку ссылки
+		#include "change_link.cms"
+		// читаем ссылку из файла 
+		$link_file = STRREADLN ("link.txt", 1)
+		$link_bufer = $http
+		LOGWRITE("если подменю верное")
+		LOGWRITE("Сравниваем из файла   ", $link_file)
+		LOGWRITE("Сравниваем из буфера  ", $link_bufer)
+	ELSE
+		waitms(56 + $S_CORR)
+		keypress(27)
+		LOGWRITE("если подменю НЕверное")
+		LOGWRITE("что сейчас в файле2   "$link_file)
+		LOGWRITE("что сейчас в буфере2  "$link_bufer)
+	END_IF
+	
+	IF ( $while1 = 20 )
+		// что-то не так с этой картинкой. Возвращаемся
+		LOGWRITE("что-то не так с этой картинкой. Возвращаемся ", $while1)
+		waitms(344 + $S_CORR)
+		  LCLICK(73,535)
+		waitms(344 + $S_CORR)
+		goto (begin)
+	END_IF
+	
+END_CYC
+LOGWRITE ("Вышли из цикла сравнения ссылок")
+
+// вызываем подготовку ссылки
+#include "change_link.cms"
+
+// записываем ссылку в файл из буфера
+StrWriteln("link.txt", $http, 1 )
+
+forward:
+$long_time = 0
+
+// вызов пкм меню
+waitms(327 + $S_CORR)
+  RCLICK(963,466)
+waitms(456 + $S_CORR)
+GETSCREEN
+IF_PICTURE_IN (968,609,1357,650, "open_picture.bmp")
+	// жмем меню "Открыть в другом окне"
+	LOGWRITE ("жмем меню Открыть в другом окне")
+	waitms(334 + $S_CORR)
+	  LCLICK(1095,626)
+	waitms(62 + $S_CORR)
+ELSE
+	LOGWRITE ("не нашел кнопку")
+	waitms(56 + $S_CORR)
+	  keypress(27)
+	goto (forward)
+END_IF
+
+//переход в другое окно
+LOGWRITE ("перешли в другую закладку")
+waitms(1204 + $S_CORR)
+  keyDown(162)
+waitms(266 + $S_CORR)
+  KEYPRESS (9)
+waitms(0 + $S_CORR)
+  keyUp(162)
+waitms(166 + $S_CORR)
+
+// Делаем снимок шапки закладки
+GETSCREEN
+screenshotfix(461,13, 675,43, "hat_screen.bmp")
+LOGWRITE ("скриним шапку закладки")
+
+// переходим в адресную строку и копируем в буфер
+lDown(770,84)
+waitms(58 + $S_CORR)
+  lUp(770,84)
+waitms(304 + $S_CORR)
+  keyDown(162)
+waitms(0 + $S_CORR)
+  keyDown(17)
+waitms(266 + $S_CORR)
+  keyDown(65)
+waitms(207 + $S_CORR)
+  keyUp(65)
+waitms(285 + $S_CORR)
+  keyDown(67)
+waitms(214 + $S_CORR)
+  keyUp(67)
+waitms(191 + $S_CORR)
+  keyUp(17)
+waitms(0 + $S_CORR)
+  keyUp(162)
+
+// если строка короткая, то возвращаемся на пкм	
+// https://gavo.arsvo.ru/Pages/Personal/PersonalSettings.aspx#
+IF (strlen(FROMCLIP ()) < 90)
+	waitms(56 + $S_CORR)
+	keypress(27)
+	LOGWRITE ("Короткая строка")
+	goto (forward)
+END_IF   
+
+// вызываем подготовку ссылки
+#include "change_link.cms"
+
+// вызываем обработчик case в зависимости от значения $white_list
+#include "white_list.cms"
+
+// помещаем полученную ссылку в буфер
+TOCLIP ($m) 
+
+//переходим в адресную строку	  
+LCLICK(770,84)
+	
+//выделяем содержимое адресной строки и вставляем ссылку из буфера
+LOGWRITE ("Вставляем обработанную ссылку в адресную строку")
+waitms(204 + $S_CORR)
+  keyDown(162)					
+waitms(266 + $S_CORR)
+  KEYPRESS (65)
+waitms(266 + $S_CORR)
+  KEYPRESS (86)
+waitms(0 + $S_CORR)
+  keyUp(162)
+waitms(270 + $S_CORR)
+  KEYPRESS (13)
+
+cicle:
+//проверяем смену картинки с момента перехода в другое окно
+LOGWRITE ("Запускаем цикл проверка шапки закладки = ", $long_time)
+GETSCREEN
+IF_PICTURE_IN (459,11, 678,45, "hat_screen.bmp")
+	waitms(500 + $S_CORR)
+	$long_time = $long_time + 1
+		
+	IF($long_time = 40)
+		// закрываем окно
+		waitms(44 + $S_CORR) 
+		LCLICK(691,29)
+		//  жмем стрелку назад
+		waitms(44 + $S_CORR)
+		  LCLICK(73,535)
+		//меняем ссылку
+		$white_list = $white_list + 1
+		
+		goto (forward)
+	END_IF
+	goto (cicle)
+END_IF
+
+LOGWRITE ("картинка сменилась")
+
+GETSCREEN
+// если пиксел = черный (проверка белого листа)
+IF_PICTURE_IN (130,230, 230,330, "black_background.bmp")
+	LOGWRITE ("не белый лист")
+ELSE	
+	//меняем ссылку
+	$white_list = $white_list + 1
+	// закрываем окно
+	waitms(44 + $S_CORR) 
+	LCLICK(691,29)
+	LOGWRITE ("!!! белый лист")
+	LOGWRITE ($http)
+	// если счетчик 16, жмем стрелку назад
+	IF ($white_list = 16)
+		LCLICK(73,535)
+		waitms(344 + $S_CORR)
+		goto (begin)
+	END_IF
+	LOGWRITE ("Возвращаемся на переоткрытие")
+	goto (forward)
+END_IF
+
+LOGWRITE ("white_list= " , $white_list)
+
+button:
+// проверяем, есть ли кнопка Сохранить
+LOGWRITE ("проверяем, есть ли кнопка Сохранить")
+GETSCREEN
+IF_PICTURE_IN (1320,60, 1478,107, "button.bmp")
+	waitms(500 + $S_CORR)
+	$long_time = $long_time + 1
+		
+	IF($long_time = 40)
+		// закрываем окно
+		waitms(44 + $S_CORR) 
+		LCLICK(691,29)
+		//  жмем стрелку назад
+		waitms(44 + $S_CORR)
+		  LCLICK(73,535)
+		//меняем ссылку
+		//$white_list = $white_list + 1
+		LOGWRITE ("Кнопка Сохранить так и не появилась")
+		HALT
+	END_IF
+	// скачиваем картинку  
+	waitms(481 + $S_CORR)
+	  LCLICK(1400,85) //старое значение 1470, 85
+	waitms(181 + $S_CORR)
+ELSE
+	goto (button)
+END_IF
+	
+LOGWRITE ("Сколько циклов ждали кнопку Сохранить= " , $long_time)
+
+LOGWRITE (finish)
+finish:
+// закрываем окно с картинкой
+waitms(1344 + $S_CORR)
+	LCLICK(691,29)
