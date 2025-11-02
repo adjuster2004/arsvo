@@ -1,4 +1,4 @@
-﻿// RECORDED SCRIPT 23.09.2025 @adjuster2004
+// RECORDED SCRIPT 23.09.2025 @adjuster2004
 // Подготавливаем страницу к просмотру. Смотрите требования.
 // Запускаем clickermann и выбираем файл конфигурации
 // Запускаем старт
@@ -271,7 +271,7 @@ button:
 // проверяем, есть ли кнопка Сохранить
 LOGWRITE ("проверяем, есть ли кнопка Сохранить")
 GETSCREEN
-IF_PICTURE_IN (1320,60, 1478,107, "button.bmp")
+IF_PICTURE_IN (1320,60, 1578,114, "button.bmp")
 	waitms(500 + $S_CORR)
 	$long_time = $long_time + 1
 		
@@ -291,6 +291,7 @@ IF_PICTURE_IN (1320,60, 1478,107, "button.bmp")
 	waitms(481 + $S_CORR)
 	  LCLICK(1400,85) //старое значение 1470, 85
 	waitms(181 + $S_CORR)
+	TFWRITE ("links.txt", $m) 
 ELSE
 	goto (button)
 END_IF
